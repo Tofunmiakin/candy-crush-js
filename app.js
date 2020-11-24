@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.querySelector('.grid')
-
+  const scoreDisplay = document.getElementById('score')
   //Amount of squares in the div
   const width = 8
   const squares = []
@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function dragStart(){
     colorBeingDragged = this.style.backgroundColor
+    console.log(colorBeingDragged)
     squareIdBeingDragged = parseInt(this.id)
     console.log(this.id, 'dragstart')
   }
@@ -98,7 +99,62 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   //drop candies once some have been cleared
-  
+  function moveDown() {
+    for (i = 0; i < 55; i++){
+      if (squares[i + width].style.backgroundColor === ''){
+        squares[i + width].style.backgroundColor = squares[i].style.backgroundColor 
+        squares[i].style.backgroundColor = ''
+        const firstRow = [0, 1, 2, 3, 4, 5, 6, 7]
+        const isFirstRow = firstRow.includes(i)
+        if (isFirstRow && squares[i].style.backgroundColor === ''){
+          let randomColor = Math.floor(Math.random() * candyColors.length)
+          squares[i].style.backgroundColor = candyColors[randomColor]
+        }
+      }
+    }
+  }
+
+
+//Checking for row of Four
+function checkRowForFour() {
+  for (i=0; i<60; i++){
+    let rowOfFour = [i, i+1, i+2, i+3]
+    let decidedColor = squares[i].style.backgroundColor
+    const isBlank = squares[i].style.backgroundColor === ''
+
+    const notValid = [5, 6, 7, 13, 14, 15, 21, 22, 23, 29, 30, 31, 37, 38, 39, 45, 46, 47, 53, 54, 55 ]
+    if(notValid.includes(i)) continue
+
+    if(rowOfFour.every(index => squares[index].style.backgroundColor === decidedColor && !isBlank)){
+      score += 4
+      scoreDisplay.innerHTML = score
+      rowOfFour.forEach(index => {
+        squares[index].style.backgroundColor = ''
+      })
+    }
+  }
+}
+
+checkRowForFour()
+
+
+// Checking for column of four
+function checkColumnForFour() {
+  for (i=0; i<47; i++){
+    let columnOfFour = [i, i+width, i+width*3]
+    let decidedColor = squares[i].style.backgroundColor
+    const isBlank = squares[i].style.backgroundColor === ''
+
+    if(columnOfFour.every(index => squares[index].style.backgroundColor === decidedColor && !isBlank)){
+      score += 4
+      scoreDisplay.innerHTML = score
+      columnOfFour.forEach(index => {
+        squares[index].style.backgroundColor = ''
+      })
+    }
+  }
+}
+checkColumnForFour()
 
 
   //Checking for matches
@@ -114,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
  
       if(rowOfThree.every(index => squares[index].style.backgroundColor === decidedColor && !isBlank)){
         score += 3
+        scoreDisplay.innerHTML = score
         rowOfThree.forEach(index => {
           squares[index].style.backgroundColor = ''
         })
@@ -133,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if(columnOfThree.every(index => squares[index].style.backgroundColor === decidedColor && !isBlank)){
         score += 3
+        scoreDisplay.innerHTML = score
         columnOfThree.forEach(index => {
           squares[index].style.backgroundColor = ''
         })
@@ -145,45 +203,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-  //Checking for row of Four
-  function checkRowForFour() {
-    for (i=0; i<60; i++){
-      let rowOfFour = [i, i+1, i+2, i+3]
-      let decidedColor = squares[i].style.backgroundColor
-      const isBlank = squares[i].style.backgroundColor === ''
-
-      const notValid = [5, 6, 7, 13, 14, 15, 21, 22, 23, 29, 30, 31, 37, 38, 39, 45, 46, 47, 53, 54, 55 ]
-      if(notValid.includes(i)) continue
-  
-      if(rowOfFour.every(index => squares[index].style.backgroundColor === decidedColor && !isBlank)){
-        score += 4
-        rowOfFour.forEach(index => {
-          squares[index].style.backgroundColor = ''
-        })
-      }
-    }
-  }
-
-  checkRowForFour()
-
-
-  //Checking for column of four
-  function checkColumnForFour() {
-    for (i=0; i<47; i++){
-      let columnOfFour = [i, i+width, i+width*3]
-      let decidedColor = squares[i].style.backgroundColor
-      const isBlank = squares[i].style.backgroundColor === ''
-
-      if(columnOfFour.every(index => squares[index].style.backgroundColor === decidedColor && !isBlank)){
-        score += 4
-        columnOfFour.forEach(index => {
-          squares[index].style.backgroundColor = ''
-        })
-      }
-    }
-  }
-
-  checkColumnForFour()
   
 
 
@@ -191,6 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   window.setInterval(function(){
+    moveDown()
     checkRowForFour()
     checkColumnForFour()
     checkRowForThree()
